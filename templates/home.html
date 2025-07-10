@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Getting Started - Germany Map</title>
+
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <style>
+        /* Modern UI with Dark Theme - Matching main application */
+        :root {
+            --bg-dark: #121212;
+            --bg-card: #1e1e1e;
+            --bg-card-hover: #252525;
+            --accent-green: #107c10;
+            --accent-green-hover: #0b5e0b;
+            --accent-blue: #0078d4;
+            --accent-blue-hover: #0062a9;
+            --text-primary: #ffffff;
+            --text-secondary: #d2d2d2;
+            --border-subtle: rgba(255, 255, 255, 0.1);
+            --shadow-strong: 0 4px 12px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Reset Default Margin & Padding */
+        body, html {
+            margin: 0;
+            height: 100%; 
+            font-family: 'Segoe UI', 'Roboto', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-secondary);
+            overflow-x: hidden;
+            line-height: 1.5;
+        }
+ 
+        /* Navbar Styling - Modern Microsoft Style */
+        .navbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--bg-card);
+            padding: 16px 24px;
+            box-shadow: var(--shadow-strong);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .navbar h1 {
+            color: var(--text-primary);
+            margin: 0;
+            font-size: 20px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+        }
+
+        .navbar h1 i {
+            margin-right: 10px;
+            color: var(--accent-green);
+        }
+
+        .navbar a {
+            text-decoration: none;
+            color: var(--text-secondary);
+            font-size: 14px;
+            padding: 8px 16px;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+            background: transparent;
+            border: 1px solid var(--border-subtle);
+            margin-left: 10px;
+        }
+
+        .navbar a:hover {
+            background: var(--bg-card-hover);
+            color: var(--text-primary);
+        }
+        
+        .navbar a.active {
+            background: var(--accent-green);
+            color: white;
+            border-color: var(--accent-green);
+        }
+
+        .content-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .page-title {
+            color: var(--text-primary);
+            margin-bottom: 40px;
+            font-size: 32px;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .getting-started-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 60px;
+        }
+
+        .feature-card {
+            background: var(--bg-card);
+            border-radius: 8px;
+            padding: 25px;
+            box-shadow: var(--shadow-strong);
+            transition: all 0.3s ease;
+            border: 1px solid var(--border-subtle);
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.7);
+        }
+
+        .feature-icon {
+            width: 60px;
+            height: 60px;
+            background: rgba(16, 124, 16, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .feature-icon i {
+            font-size: 28px;
+            color: var(--accent-green);
+        }
+
+        .feature-title {
+            font-size: 20px;
+            font-weight: 500;
+            margin-bottom: 15px;
+            color: var(--text-primary);
+        }
+
+        .feature-desc {
+            font-size: 15px;
+            line-height: 1.6;
+        }
+
+        .section {
+            margin-bottom: 60px;
+        }
+
+        .section-title {
+            color: var(--text-primary);
+            margin-bottom: 20px;
+            font-size: 24px;
+            font-weight: 500;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .walkthrough {
+            background: var(--bg-card);
+            border-radius: 8px;
+            padding: 30px;
+            margin-bottom: 40px;
+            box-shadow: var(--shadow-strong);
+        }
+
+        .step {
+            display: flex;
+            margin-bottom: 30px;
+        }
+
+        .step:last-child {
+            margin-bottom: 0;
+        }
+
+        .step-number {
+            width: 36px;
+            height: 36px;
+            background: var(--accent-blue);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 20px;
+            flex-shrink: 0;
+        }
+
+        .step-content {
+            flex: 1;
+        }
+
+        .step-title {
+            font-size: 18px;
+            font-weight: 500;
+            margin-bottom: 10px;
+            color: var(--text-primary);
+        }
+
+        .step-desc {
+            font-size: 15px;
+            line-height: 1.6;
+        }
+
+        .image-container {
+            margin: 20px 0;
+            text-align: center;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            padding: 10px;
+            border: 1px solid var(--border-subtle);
+        }
+
+        .step-image {
+            max-width: 100%;
+            height: auto;
+            border-radius: 4px;
+        }
+
+        .key-metric {
+            display: flex;
+            align-items: center;
+            background: linear-gradient(145deg, rgba(16, 124, 16, 0.05), rgba(16, 124, 16, 0.1));
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 3px solid var(--accent-green);
+        }
+
+        .metric-icon {
+            margin-right: 15px;
+            color: var(--accent-green);
+            font-size: 24px;
+        }
+
+        .metric-content {
+            flex: 1;
+        }
+
+        .metric-title {
+            font-weight: 500;
+            color: var(--text-primary);
+            margin-bottom: 5px;
+        }
+
+        .cta-button {
+            background: var(--accent-green);
+            color: white;
+            border: none;
+            padding: 14px 28px;
+            font-size: 16px;
+            font-weight: 500;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-block;
+            text-decoration: none;
+            margin-top: 20px;
+        }
+
+        .cta-button:hover {
+            background: var(--accent-green-hover);
+            transform: translateY(-2px);
+        }
+
+        .center-content {
+            text-align: center;
+            margin: 40px 0;
+        }
+
+        .footer {
+            background: linear-gradient(135deg, #1b5e20, #2e7d32);
+            color: white;
+            text-align: center;
+            padding: 20px;
+            margin-top: 40px;
+            border-radius: 12px 12px 0 0;
+        }
+
+        .highlight-term {
+            background-color: rgba(16, 124, 16, 0.2);
+            border-radius: 3px;
+            padding: 0 4px;
+            font-weight: bold;
+            color: #107c10;
+        }
+
+        .tip-box {
+            background-color: rgba(0, 120, 212, 0.1);
+            border-left: 3px solid var(--accent-blue);
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 0 4px 4px 0;
+        }
+
+        .tip-title {
+            color: var(--accent-blue);
+            font-weight: 500;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+        }
+
+        .tip-title i {
+            margin-right: 8px;
+        }
+
+        @media (max-width: 768px) {
+            .getting-started-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .step {
+                flex-direction: column;
+            }
+            
+            .step-number {
+                margin-bottom: 15px;
+            }
+        }
+
+        
+        .preloader {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: #ffffff;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+        transition: opacity 0.5s ease-out, visibility 0.5s ease-out;
+    }
+
+    .preloader.fade-out {
+        opacity: 0;
+        visibility: hidden;
+    }
+
+    .preloader-gif {
+        width: 1200px;
+        height: 800px;
+        margin-bottom: 20px;
+    }
+
+    .preloader-text {
+        color: var(--text-primary);
+        font-size: 18px;
+        font-weight: 500;
+        margin-top: 20px;
+        animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+        0%, 100% { opacity: 0.7; }
+        50% { opacity: 1; }
+    }
+
+    /* Hide main content initially */
+    .main-content {
+        opacity: 0;
+        transition: opacity 0.5s ease-in;
+    }
+
+    .main-content.show {
+        opacity: 1;
+    }
+
+    </style>
+</head>
+<body>
+    <div class="preloader" id="preloader">
+    <img src="{{ url_for('static', filename='images/preloader.gif') }}" alt="Loading..." class="preloader-gif">
+</div>
+    <!-- Navigation Bar -->
+    <div class="navbar">
+        <h1><i class="fas fa-map-marked-alt"></i> Germany Map</h1>
+        <div>
+            <a href="/"><i class="fas fa-home"></i> Home</a>
+            <a href="/map" class="active"><i class="fas fa-map"></i> Map</a>
+        </div>
+    </div>
+
+    <!-- Content Container -->
+    <div class="content-container">
+        <h1 class="page-title">Getting Started with EcoMap Germany</h1>
+        
+        <!-- Feature Grid -->
+        <div class="getting-started-grid">
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-map-pin"></i>
+                </div>
+                <h3 class="feature-title">Interactive Mapping</h3>
+                <p class="feature-desc">Explore environmental data across Germany with our interactive map. Add markers to specific locations and view <span class="highlight-term">Mean Species Abundance (MSA)</span> values to understand biodiversity health.</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <h3 class="feature-title">Emissions Reports</h3>
+                <p class="feature-desc">Access detailed <span class="highlight-term">CO₂ emissions</span> reports for various industrial sectors including Metal Manufacturing, Construction, Chemical, and Consumer Goods.</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-robot"></i>
+                </div>
+                <h3 class="feature-title">AI Assistant</h3>
+                <p class="feature-desc">Get instant answers about environmental concepts like <span class="highlight-term">ESRS E4</span>, sustainability reporting standards, and interpretation of the data through our AI-powered chatbot.</p>
+            </div>
+        </div>
+        
+        <!-- Key Metrics Section -->
+        <div class="section">
+            <h2 class="section-title">Understanding Key Environmental Metrics</h2>
+            
+            <div class="key-metric">
+                <div class="metric-icon">
+                    <i class="fas fa-leaf"></i>
+                </div>
+                <div class="metric-content">
+                    <h3 class="metric-title">Mean Species Abundance (MSA)</h3>
+                    <p>MSA measures biodiversity intactness by comparing species abundance in disturbed versus pristine ecosystems. A value of 1.0 indicates complete intactness, while values approaching zero signify severe ecological degradation.</p>
+                </div>
+            </div>
+            
+            <div class="key-metric">
+                <div class="metric-icon">
+                    <i class="fas fa-industry"></i>
+                </div>
+                <div class="metric-content">
+                    <h3 class="metric-title">CO₂ Emissions</h3>
+                    <p>Carbon dioxide emissions are measured in tonnes and indicate the environmental impact of various industrial activities. The platform provides sector-specific emissions data to help identify areas needing improvement.</p>
+                </div>
+            </div>
+            
+            <div class="key-metric">
+                <div class="metric-icon">
+                    <i class="fas fa-file-alt"></i>
+                </div>
+                <div class="metric-content">
+                    <h3 class="metric-title">ESRS E4 Compliance</h3>
+                    <p>European Sustainability Reporting Standards (ESRS) E4 focuses specifically on biodiversity and ecosystems reporting requirements. This standard helps companies report transparently on their biodiversity impacts.</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Walkthrough Section -->
+        
+        
+        <!-- FAQs Section -->
+        <div class="section">
+            <h2 class="section-title">Frequently Asked Questions</h2>
+            
+            <div class="walkthrough">
+                <div class="step">
+                    <div class="step-number"><i class="fas fa-question"></i></div>
+                    <div class="step-content">
+                        <h3 class="step-title">How is Mean Species Abundance (MSA) calculated?</h3>
+                        <p class="step-desc">MSA values are calculated using ecological models that compare current species abundance in a location with the abundance expected in a pristine, undisturbed reference state. Factors considered include land use, infrastructure, fragmentation, and pollution levels.</p>
+                    </div>
+                </div>
+                
+                <div class="step">
+                    <div class="step-number"><i class="fas fa-question"></i></div>
+                    <div class="step-content">
+                        <h3 class="step-title">Where does the emissions data come from?</h3>
+                        <p class="step-desc">The CO₂ emissions data is compiled from Germany's Federal Environmental Agency (Umweltbundesamt), industrial reports, and sustainability disclosures from major companies operating within Germany, updated quarterly.</p>
+                    </div>
+                </div>
+                
+                <div class="step">
+                    <div class="step-number"><i class="fas fa-question"></i></div>
+                    <div class="step-content">
+                        <h3 class="step-title">Can I export data from the platform?</h3>
+                        <p class="step-desc">Currently, direct data export functionality is in development. For now, you can use the reports feature to view visual representations of the data and take screenshots as needed.</p>
+                    </div>
+                </div>
+                
+                <div class="step">
+                    <div class="step-number"><i class="fas fa-question"></i></div>
+                    <div class="step-content">
+                        <h3 class="step-title">How often is the data updated?</h3>
+                        <p class="step-desc">Environmental data is updated quarterly, with the most recent update being April 2025. All timestamps for specific datasets can be found in the information panel of each report.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Get Started CTA -->
+        <div class="center-content">
+            <h2>Ready to explore environmental data?</h2>
+            <a href="/map" class="cta-button"><i class="fas fa-map-marked-alt"></i> Open Interactive Map</a>
+        </div>
+    </div>
+    
+    <!-- Footer -->
+    <div class="footer">
+        <p>© 2025 EcoMap Germany - Environmental Monitoring Platform</p>
+    </div>
+<script>
+    window.addEventListener('load', function() {
+    const preloader = document.getElementById('preloader');
+    const mainContent = document.getElementById('mainContent');
+    
+    // Minimum loading time of 2 seconds for better UX
+    setTimeout(() => {
+        preloader.classList.add('fade-out');
+        mainContent.classList.add('show');
+        
+        // Remove preloader from DOM after animation
+        setTimeout(() => {
+            preloader.remove();
+        }, 500);
+    }, 2000);
+});
+</script>
+</body>
+</html>

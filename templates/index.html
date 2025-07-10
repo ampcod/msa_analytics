@@ -1,0 +1,2290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Germany Map</title>
+
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <style>
+                :root {
+    --bg-dark: #121212;
+    --bg-card: #1e1e1e;
+    --bg-card-hover: #252525;
+    --accent-green: #107c10;
+    --accent-green-hover: #0b5e0b;
+    --accent-blue: #0078d4;
+    --accent-blue-hover: #0062a9;
+    --text-primary: #ffffff;
+    --text-secondary: #d2d2d2;
+    --border-subtle: rgba(255, 255, 255, 0.1);
+    --shadow-strong: 0 4px 12px rgba(0, 0, 0, 0.5);
+}
+
+/* Reset Default Margin & Padding */
+body, html {
+    margin: 0;
+    height: 100%;
+    font-family: 'Segoe UI', 'Roboto', sans-serif;
+    background-color: var(--bg-dark);
+    color: var(--text-secondary);
+    overflow-x: hidden;
+    line-height: 1.5;
+}
+
+/* Navbar Styling - Modern Microsoft Style */
+.navbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--bg-card);
+    padding: 16px 24px;
+    box-shadow: var(--shadow-strong);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    border-bottom: 1px solid var(--border-subtle);
+}
+
+.navbar h1 {
+    color: var(--text-primary);
+    margin: 0;
+    font-size: 20px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+}
+
+.navbar h1 i {
+    margin-right: 10px;
+    color: var(--accent-green);
+}
+
+.navbar a {
+    text-decoration: none;
+    color: var(--text-secondary);
+    font-size: 14px;
+    padding: 8px 16px;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    background: transparent;
+    border: 1px solid var(--border-subtle);
+}
+
+.navbar a:hover {
+    background: var(--bg-card-hover);
+    color: var(--text-primary);
+}
+
+/* Map Container */
+.map-container {
+    position: relative;
+    height: calc(100vh - 69px); /* Minus navbar height */
+    display: flex;
+}
+
+/* Map & Content Styling */
+#map {
+    flex: 1;
+    height: 100%;
+    z-index: 1;
+}
+
+/* Modern Sidebar */
+.map-sidebar {
+    width: 320px;
+    background: var(--bg-card);
+    height: 100%;
+    overflow-y: auto;
+    border-left: 1px solid var(--border-subtle);
+    transition: transform 0.3s ease;
+    z-index: 2;
+}
+
+.sidebar-header {
+    padding: 16px;
+    background: var(--bg-card);
+    border-bottom: 1px solid var(--border-subtle);
+    position: sticky;
+    top: 0;
+}
+
+.sidebar-header h2 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 500;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+}
+
+.sidebar-header h2 i {
+    margin-right: 10px;
+    color: var(--accent-blue);
+}
+
+.sidebar-content {
+    padding: 16px;
+}
+
+.sidebar-tabs {
+    display: flex;
+    border-bottom: 1px solid var(--border-subtle);
+    margin-bottom: 16px;
+}
+
+.sidebar-tab {
+    padding: 10px 16px;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s ease;
+    color: var(--text-secondary);
+    font-size: 14px;
+}
+
+.sidebar-tab.active {
+    color: var(--accent-blue);
+    border-bottom-color: var(--accent-blue);
+}
+
+/* Marker Entry Styling */
+.marker-entry {
+    background: var(--bg-card-hover);
+    border-radius: 6px;
+    padding: 14px;
+    margin-bottom: 12px;
+    border: 1px solid var(--border-subtle);
+    transition: all 0.2s ease;
+}
+
+.marker-entry:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-strong);
+}
+
+.marker-entry .entry-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.marker-entry .msa-value {
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+.marker-entry .delete-btn {
+    background: transparent;
+    border: none;
+    color: #ff5252;
+    cursor: pointer;
+    font-size: 16px;
+    padding: 4px 8px;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+.marker-entry .delete-btn:hover {
+    background: rgba(255, 82, 82, 0.1);
+}
+
+.marker-entry .coordinates {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin: 4px 0;
+}
+
+.entry-action {
+    margin-top: 10px;
+}
+
+.report-btn {
+    background: var(--accent-blue);
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    width: 100%;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.report-btn i {
+    margin-right: 6px;
+}
+
+.report-btn:hover {
+    background: var(--accent-blue-hover);
+}
+
+/* Add Marker Button */
+.add-button {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    background: var(--accent-green);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 56px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    box-shadow: var(--shadow-strong);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    z-index: 1000;
+}
+
+.add-button:hover {
+    background: var(--accent-green-hover);
+    transform: translateY(-2px);
+}
+
+/* Popup Styling */
+.popup {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: var(--bg-card);
+    padding: 24px;
+    box-shadow: var(--shadow-strong);
+    z-index: 2000;
+    color: var(--text-secondary);
+    width: 350px;
+    border-radius: 8px;
+    border: 1px solid var(--border-subtle);
+}
+
+.popup h3 {
+    margin-top: 0;
+    font-size: 18px;
+    font-weight: 500;
+    color: var(--text-primary);
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+}
+
+.popup h3 i {
+    margin-right: 10px;
+    color: var(--accent-green);
+}
+
+.popup label {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 14px;
+}
+
+.popup input {
+    width: 100%;
+    padding: 10px 12px;
+    margin-bottom: 16px;
+    border: 1px solid var(--border-subtle);
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-primary);
+    font-size: 14px;
+}
+
+.popup input:focus {
+    outline: none;
+    border-color: var(--accent-blue);
+}
+
+.popup button {
+    background: var(--accent-blue);
+    color: white;
+    border: none;
+    padding: 10px;
+    cursor: pointer;
+    width: 100%;
+    margin-top: 10px;
+    border-radius: 4px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    font-size: 14px;
+}
+
+.popup button:hover {
+    background: var(--accent-blue-hover);
+}
+
+/* Mini Map Styling */
+#mini-map {
+    width: 100%;
+    height: 200px;
+    margin-top: 10px;
+    border-radius: 8px;
+    border: 1px solid var(--border-subtle);
+}
+
+/* Close Button */
+.close-btn {
+    background: #ff5252 !important;
+}
+
+.close-btn:hover {
+    background: #c41c1c !important;
+}
+
+/* Suggestions Styling */
+.suggestions {
+    position: relative;
+    width: 100%;
+    background: var(--bg-card-hover);
+    border: 1px solid var(--border-subtle);
+    border-radius: 4px;
+    max-height: 200px;
+    overflow-y: auto;
+    margin-top: -16px;
+    margin-bottom: 16px;
+    display: none; /* Hidden by default */
+    z-index: 1001;
+}
+
+.suggestion-item {
+    padding: 10px 12px;
+    cursor: pointer;
+    border-bottom: 1px solid var(--border-subtle);
+    font-size: 13px;
+}
+
+.suggestion-item:hover {
+    background: rgba(0, 120, 212, 0.1);
+}
+
+/* Tab Content */
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+/* Empty state */
+.empty-state {
+    text-align: center;
+    padding: 30px 20px;
+    color: var(--text-secondary);
+}
+
+.empty-state i {
+    font-size: 48px;
+    margin-bottom: 20px;
+    color: var(--border-subtle);
+}
+
+.empty-state h3 {
+    font-size: 16px;
+    font-weight: 500;
+    margin-bottom: 10px;
+    color: var(--text-primary);
+}
+
+.empty-state p {
+    font-size: 14px;
+}
+.button-container {
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+button {
+    padding: 10px 15px;
+    border: none;
+    background-color: #3498DB;
+    color: white;
+    cursor: pointer;
+    font-size: 16px;
+    border-radius: 5px;
+    transition: background 0.3s;
+}
+button:hover {
+    background-color: #2980B9;
+}
+.report-container {
+    margin-top: 20px;
+}
+#msa-chart {
+    background-color: var(--bg-card);
+    border-radius: 8px;
+    border: 1px solid var(--border-subtle);
+    margin-top: 10px;
+}
+.loading-spinner {
+    text-align: center;
+    padding: 30px 20px;
+    color: var(--text-secondary);
+}
+
+.spinner {
+    display: inline-block;
+    width: 50px;
+    height: 50px;
+    border: 3px solid rgba(255,255,255,.3);
+    border-radius: 50%;
+    border-top-color: var(--accent-blue);
+    animation: spin 1s ease-in-out infinite;
+    margin-bottom: 15px;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+iframe {
+    display: block;
+    margin: 0 auto;
+    width: 70%;
+    height: 1000px;
+    border: none;
+}
+.content-container {
+    padding: 40px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* Chatbot Button */
+.chatbot-button {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    width: 60px;
+    height: 60px;
+    background-color: var(--accent-blue);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    z-index: 9999;
+    transition: all 0.3s ease;
+}
+
+.chatbot-button:hover {
+    background-color: var(--accent-blue-hover);
+    transform: scale(1.05);
+}
+
+.chatbot-button i {
+    color: white;
+    font-size: 24px;
+}
+
+/* Chatbot popup */
+.chatbot-popup {
+    position: fixed;
+    bottom: 100px;
+    right: 30px;
+    width: 450px;
+    height: 750px;
+    background-color: var(--bg-card);
+    border-radius: 12px;
+    box-shadow: var(--shadow-strong);
+    display: flex;
+    flex-direction: column;
+    z-index: 9998;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(20px);
+}
+
+.chatbot-popup.active {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.chatbot-header {
+    background-color: var(--accent-blue);
+    color: white;
+    padding: 15px;
+    font-size: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.chatbot-header i.fa-times {
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.chatbot-header i.fa-times:hover {
+    transform: scale(1.2);
+}
+
+.chatbot-messages {
+    flex: 1;
+    padding: 15px;
+    overflow-y: auto;
+    background-color: rgba(30, 30, 30, 0.7);
+}
+
+.message {
+    margin-bottom: 15px;
+    max-width: 85%;
+}
+
+.user-message {
+    margin-left: auto;
+    background-color: var(--accent-blue);
+    color: white;
+    padding: 10px 15px;
+    border-radius: 18px 18px 0 18px;
+}
+
+.bot-message {
+    margin-right: auto;
+    background-color: var(--bg-card-hover);
+    color: var(--text-primary);
+    padding: 10px 15px;
+    border-radius: 18px 18px 18px 0;
+}
+
+.bot-message-structured {
+    margin-right: auto;
+    background-color: var(--bg-card-hover);
+    color: var(--text-primary);
+    padding: 15px;
+    border-radius: 10px;
+    border-left: 3px solid var(--accent-green);
+}
+
+.chatbot-input {
+    display: flex;
+    padding: 10px;
+    background-color: var(--bg-card-hover);
+    border-top: 1px solid var(--border-subtle);
+}
+
+.chatbot-input input {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid var(--border-subtle);
+    border-radius: 20px;
+    background-color: rgba(255, 255, 255, 0.1);
+    color: var(--text-primary);
+    margin-right: 10px;
+}
+
+.chatbot-input button {
+    background-color: var(--accent-blue);
+    color: white;
+    border: none;
+    border-radius: 20px;
+    padding: 10px 15px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.chatbot-input button:hover {
+    background-color: var(--accent-blue-hover);
+}
+
+/* Section spacing */
+.section {
+    margin-bottom: 60px;
+}
+
+.section-title {
+    color: var(--text-primary);
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border-subtle);
+}
+
+/* Report container */
+.report-container {
+    margin-top: 30px;
+}
+
+iframe {
+    display: block;
+    margin: 0 auto;
+    width: 100%;
+    height: 600px;
+    border: none;
+    border-radius: 8px;
+    box-shadow: var(--shadow-strong);
+}
+
+.footer {
+    background: linear-gradient(135deg, #1b5e20, #2e7d32);
+    color: white;
+    text-align: center;
+    padding: 20px;
+    margin-top: 40px;
+    border-radius: 12px 12px 0 0;
+}
+
+.highlight-term {
+    background-color: rgba(16, 124, 16, 0.2);
+    border-radius: 3px;
+    padding: 0 4px;
+    font-weight: bold;
+    color: #107c10;
+}
+
+.bot-message code,
+.bot-message-structured code {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 2px 4px;
+    border-radius: 3px;
+    font-family: monospace;
+}
+
+.bot-message-structured {
+    margin-right: auto;
+    background-color: var(--bg-card-hover);
+    color: var(--text-primary);
+    padding: 15px;
+    border-radius: 10px;
+    border-left: 3px solid var(--accent-green);
+    max-width: 85%;
+}
+
+.bot-message-structured h2,
+.bot-message-structured h3 {
+    margin-top: 10px;
+    margin-bottom: 5px;
+    color: var(--text-primary);
+}
+
+.bot-message-structured ul,
+.bot-message-structured ol {
+    padding-left: 20px;
+    margin: 5px 0;
+}
+
+/* MSA Report Card Styling */
+#report-output ul {
+    list-style-type: none;
+    padding: 0;
+    margin-top: 10px;
+    color: var(--text-secondary);
+    text-align: left;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+#report-output ul li {
+    margin: 4px 0;
+    padding-left: 12px;
+    position: relative;
+}
+
+#report-output ul li::before {
+    content: "•";
+    position: absolute;
+    left: 0;
+    color: var(--accent-green);
+    font-size: 16px;
+    line-height: 1;
+}
+
+#report-output p:last-child {
+    margin-top: 15px;
+    font-weight: 500;
+    color: var(--text-primary);
+    font-size: 15px;
+}
+
+        </style>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <div class="navbar">
+        <h1><i class="fas fa-map-marked-alt"></i> Germany Map</h1>
+        <a href="/"><i class="fas fa-home"></i> Home</a>
+    </div>
+
+    <!-- Map and Sidebar Container -->
+    <div class="map-container">
+        <!-- Map Section -->
+        <div id="map">
+            <button class="add-button" onclick="openPopup()"><i class="fas fa-plus"></i></button>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="map-sidebar">
+            <div class="sidebar-header">
+                <h2><i class="fas fa-layer-group"></i> Map Layers</h2>
+            </div>
+            <div class="sidebar-content">
+                <div class="sidebar-tabs">
+                    <div class="sidebar-tab active" onclick="showTab('markers')">Markers</div>
+                    <div class="sidebar-tab" onclick="showTab('reports')">Reports</div>
+                </div>
+
+                <!-- Markers Tab -->
+                <div id="markers-tab" class="tab-content active">
+                    <div id="markers-list">
+                        <!-- Marker entries will be added here dynamically -->
+                        <div class="empty-state">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <h3>No markers added</h3>
+                            <p>Click the + button to add markers to the map</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Reports Tab -->
+                <!-- Reports Tab -->
+                <div id="reports-tab" class="tab-content">
+                    <div class="empty-state" id="report-output">
+                        <i class="fas fa-chart-line"></i>
+                        <h3>Location Report</h3>
+                        <p>Select a marker to view MSA values from 1995 to 2020.</p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Popup Window for Coordinate Selection -->
+    <div class="popup" id="popup">
+        <h3><i class="fas fa-map-pin"></i> Add New Marker</h3>
+        
+        <!-- Location Input -->
+        <label>Location Name:</label>
+        <input type="text" id="location" placeholder="Enter location name" oninput="showSuggestions()">
+        <div id="suggestions" class="suggestions"></div>
+        <button onclick="fetchCoordinates()"><i class="fas fa-search"></i> Get Coordinates</button>
+
+        <!-- Latitude & Longitude Fields -->
+        <label>Latitude:</label>
+        <input type="text" id="lat" placeholder="Enter latitude">
+        <label>Longitude:</label>
+        <input type="text" id="lng" placeholder="Enter longitude">
+
+        <!-- Mini Map for Pinning -->
+        <div id="mini-map"></div>
+        <button onclick="confirmCoordinates()"><i class="fas fa-check"></i> Confirm</button>
+        <button class="close-btn" onclick="closePopup()"><i class="fas fa-times"></i> Cancel</button>
+    </div>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+    <script src="{{ url_for('static', filename='tunnel_url.js') }}"></script>
+
+    <script>
+    const OPENCAGE_API_KEY = "fa759f5b6f9d4334a4aa1745b3a83b13";
+    var map = L.map('map').setView([51.1657, 10.4515], 6);
+    var miniMap, miniMarker;
+    var selectedLat, selectedLng;
+    var markers = [];
+    var circles = [];
+    var markerCounter = 0;
+
+    // Main Map Setup
+    L.tileLayer('https://{s}.tile.thunderforest.com/landscape/{z}/{x}/{y}.png?apikey=5c00b9d2b4c24b84a397b4ddaae33267', {
+        attribution: '&copy; Thunderforest & OpenStreetMap contributors',
+        maxZoom: 18
+    }).addTo(map);
+
+    // Outline Germany
+    fetch('https://raw.githubusercontent.com/johan/world.geo.json/master/countries/DEU.geo.json')
+        .then(response => response.json())
+        .then(data => {
+            L.geoJSON(data, {
+                style: { color: "#107c10", weight: 2, fillOpacity: 0.05, fillColor: "#107c10" }
+            }).addTo(map);
+        });
+
+    // Tab switching function
+    function showTab(tabName) {
+        // Hide all tabs
+        document.querySelectorAll('.tab-content').forEach(tab => {
+            tab.classList.remove('active');
+        });
+
+        // Deactivate all tab buttons
+        document.querySelectorAll('.sidebar-tab').forEach(tab => {
+            tab.classList.remove('active');
+        });
+
+        // Show selected tab and activate button
+        document.getElementById(tabName + '-tab').classList.add('active');
+        document.querySelector(`.sidebar-tab:nth-child(${tabName === 'markers' ? '1' : '2'})`).classList.add('active');
+    }
+
+    // Geocoding function with Nominatim first, OpenCage fallback
+    async function geocodeLocation(query, limit = 5) {
+        try {
+            // Try Nominatim first
+            console.log('Attempting Nominatim geocoding...');
+            const nominatimUrl = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query + ' Germany')}&limit=${limit}&countrycodes=de&addressdetails=1`;
+            
+            const nominatimResponse = await fetch(nominatimUrl, {
+                headers: {
+                    'User-Agent': 'GermanyLocationApp/1.0'
+                }
+            });
+            
+            if (nominatimResponse.ok) {
+                const nominatimData = await nominatimResponse.json();
+                
+                if (nominatimData && nominatimData.length > 0) {
+                    console.log('Nominatim geocoding successful');
+                    // Convert Nominatim format to OpenCage-like format for consistency
+                    return nominatimData.map(place => ({
+                        display_name: place.display_name,
+                        lat: parseFloat(place.lat),
+                        lon: parseFloat(place.lon),
+                        formatted: place.display_name
+                    }));
+                }
+            }
+            
+            throw new Error('Nominatim returned no results or failed');
+            
+        } catch (nominatimError) {
+            console.log('Nominatim failed, trying OpenCage...', nominatimError.message);
+            
+            try {
+                // Fallback to OpenCage
+                const opencageUrl = `https://api.opencagedata.com/geocode/v1/json?q=${encodeURIComponent(query)}&key=${OPENCAGE_API_KEY}&limit=${limit}&countrycode=de`;
+                const opencageResponse = await fetch(opencageUrl);
+                
+                if (opencageResponse.ok) {
+                    const opencageData = await opencageResponse.json();
+                    
+                    if (opencageData.results && opencageData.results.length > 0) {
+                        console.log('OpenCage geocoding successful');
+                        return opencageData.results.map(place => ({
+                            display_name: place.formatted,
+                            lat: place.geometry.lat,
+                            lon: place.geometry.lng,
+                            formatted: place.formatted
+                        }));
+                    }
+                }
+                
+                throw new Error('OpenCage also failed or returned no results');
+                
+            } catch (opencageError) {
+                console.error('Both geocoding services failed:', opencageError);
+                throw new Error('All geocoding services failed');
+            }
+        }
+    }
+
+    // Reverse geocoding function with Nominatim first, OpenCage fallback
+    async function reverseGeocode(lat, lng) {
+        try {
+            // Try Nominatim first
+            console.log('Attempting Nominatim reverse geocoding...');
+            const nominatimUrl = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&addressdetails=1`;
+            
+            const nominatimResponse = await fetch(nominatimUrl, {
+                headers: {
+                    'User-Agent': 'GermanyLocationApp/1.0'
+                }
+            });
+            
+            if (nominatimResponse.ok) {
+                const nominatimData = await nominatimResponse.json();
+                
+                if (nominatimData && nominatimData.display_name) {
+                    console.log('Nominatim reverse geocoding successful');
+                    return {
+                        display_name: nominatimData.display_name,
+                        formatted: nominatimData.display_name
+                    };
+                }
+            }
+            
+            throw new Error('Nominatim reverse geocoding failed');
+            
+        } catch (nominatimError) {
+            console.log('Nominatim reverse geocoding failed, trying OpenCage...', nominatimError.message);
+            
+            try {
+                // Fallback to OpenCage
+                const opencageUrl = `https://api.opencagedata.com/geocode/v1/json?q=${lat},${lng}&key=${OPENCAGE_API_KEY}&limit=1`;
+                const opencageResponse = await fetch(opencageUrl);
+                
+                if (opencageResponse.ok) {
+                    const opencageData = await opencageResponse.json();
+                    
+                    if (opencageData.results && opencageData.results.length > 0) {
+                        console.log('OpenCage reverse geocoding successful');
+                        return {
+                            display_name: opencageData.results[0].formatted,
+                            formatted: opencageData.results[0].formatted
+                        };
+                    }
+                }
+                
+                throw new Error('OpenCage reverse geocoding also failed');
+                
+            } catch (opencageError) {
+                console.error('Both reverse geocoding services failed:', opencageError);
+                return {
+                    display_name: `Location at ${lat}, ${lng}`,
+                    formatted: `Location at ${lat}, ${lng}`
+                };
+            }
+        }
+    }
+
+    async function showSuggestions() {
+        var query = document.getElementById("location").value;
+        var suggestionsDiv = document.getElementById("suggestions");
+
+        // Hide dropdown if less than 3 characters entered
+        if (query.length < 3) {
+            suggestionsDiv.innerHTML = "";
+            suggestionsDiv.style.display = "none";
+            return;
+        }
+
+        try {
+            const places = await geocodeLocation(query, 5);
+            
+            suggestionsDiv.innerHTML = "";  // Clear previous results
+            suggestionsDiv.style.display = "block";  // Show dropdown
+
+            places.forEach(place => {
+                var div = document.createElement("div");
+                div.innerText = place.display_name;
+                div.classList.add("suggestion-item");
+
+                // When user clicks a suggestion, populate inputs & hide suggestions
+                div.onclick = function() {
+                    document.getElementById("location").value = place.display_name;
+                    document.getElementById("lat").value = place.lat;
+                    document.getElementById("lng").value = place.lon;
+                    suggestionsDiv.innerHTML = "";
+                    suggestionsDiv.style.display = "none";
+
+                    // Update mini map view
+                    if (miniMap) {
+                        miniMap.setView([place.lat, place.lon], 10);
+                        if (miniMarker) miniMarker.remove();
+                        miniMarker = L.marker([place.lat, place.lon]).addTo(miniMap);
+                    }
+                };
+
+                suggestionsDiv.appendChild(div);
+            });
+            
+        } catch (error) {
+            console.error("Error fetching suggestions:", error);
+            suggestionsDiv.innerHTML = '<div class="suggestion-item" style="color: #999;">No suggestions found</div>';
+            suggestionsDiv.style.display = "block";
+        }
+    }
+
+    // Open Popup
+    function openPopup() {
+        document.getElementById("popup").style.display = "block";
+
+        if (!miniMap) {
+            miniMap = L.map('mini-map').setView([51.1657, 10.4515], 6);
+            L.tileLayer('https://{s}.tile.thunderforest.com/landscape/{z}/{x}/{y}.png?apikey=5c00b9d2b4c24b84a397b4ddaae33267', {
+                attribution: '&copy; Thunderforest & OpenStreetMap contributors',
+                maxZoom: 18
+            }).addTo(miniMap);
+
+            miniMap.on('click', function(e) {
+                selectedLat = e.latlng.lat.toFixed(6);
+                selectedLng = e.latlng.lng.toFixed(6);
+                document.getElementById("lat").value = selectedLat;
+                document.getElementById("lng").value = selectedLng;
+
+                if (miniMarker) miniMarker.remove();
+                miniMarker = L.marker([selectedLat, selectedLng]).addTo(miniMap);
+            });
+        } else {
+            // Reset miniMap view
+            miniMap.setView([51.1657, 10.4515], 6);
+            if (miniMarker) miniMarker.remove();
+        }
+
+        // Clear input fields
+        document.getElementById("location").value = "";
+        document.getElementById("lat").value = "";
+        document.getElementById("lng").value = "";
+    }
+
+    // Get Coordinates from Location Name
+    async function fetchCoordinates() {
+        var location = document.getElementById("location").value;
+        
+        if (!location.trim()) {
+            alert("Please enter a location name.");
+            return;
+        }
+        
+        try {
+            const places = await geocodeLocation(location, 1);
+            
+            if (places && places.length > 0) {
+                var lat = places[0].lat;
+                var lng = places[0].lon;
+
+                document.getElementById("lat").value = lat;
+                document.getElementById("lng").value = lng;
+
+                // Update mini map
+                if (miniMap) {
+                    miniMap.setView([lat, lng], 10);
+                    if (miniMarker) miniMarker.remove();
+                    miniMarker = L.marker([lat, lng]).addTo(miniMap);
+                }
+            } else {
+                alert("Location not found. Please try a different search term.");
+            }
+        } catch (error) {
+            console.error("Error fetching coordinates:", error);
+            alert("Error fetching coordinates. Please try again.");
+        }
+    }
+
+    function fetchMSAValue(lat, lng, callback) {
+        // First fetch only MSA 2020 for quick display
+        fetch(`${BASE_URL}/get_msa_2020?lat=${lat}&lng=${lng}`)
+            .then(response => response.json())
+            .then(data => {
+                // Call the callback immediately with 2020 data
+                callback(data, true);
+            })
+            .catch(error => {
+                console.error("Error fetching MSA 2020 data:", error);
+                callback({
+                    msa_2020: "No data"
+                }, true);
+            });
+    }
+
+    async function confirmCoordinates() {
+        var lat = document.getElementById("lat").value;
+        var lng = document.getElementById("lng").value;
+
+        if (lat && lng) {
+            try {
+                const locationData = await reverseGeocode(lat, lng);
+                var locationName = locationData.display_name || "Unnamed Location";
+                document.getElementById("location").value = locationName;
+
+                map.setView([lat, lng], 10);
+
+                // Initially only fetch MSA 2020 data for quick display
+                fetchMSAValue(lat, lng, function (msaData, isInitial) {
+                    var marker, circle;
+                    const msa2020 = msaData.msa_2020 || 0.5;
+
+                    // First time with only 2020 data
+                    marker = addMarker(lat, lng);
+                    circle = addCircle(lat, lng, 3, getCircleColor(msa2020));
+
+                    // Add the marker to sidebar with initial data
+                    const markerId = markerCounter++;
+                    addMarkerToSidebar(locationName, lat, lng, msaData, markerId);
+
+                    // Remove empty state if present
+                    var emptyState = document.querySelector('#markers-tab .empty-state');
+                    if (emptyState) emptyState.remove();
+
+                    // Now fetch historical data for this marker
+                    fetch(`${BASE_URL}/get_historical_msa?lat=${lat}&lng=${lng}`)
+                        .then(response => response.json())
+                        .then(historicalData => {
+                            // Combine all data
+                            const completeData = {
+                                ...msaData,
+                                ...historicalData
+                            };
+
+                            // Update the marker entry with complete data
+                            // If the report tab is active, update it
+                            const reportTab = document.getElementById('reports-tab');
+                            if (reportTab.classList.contains('active')) {
+                                viewReport(lat, lng, JSON.stringify(completeData));
+                            }
+                        })
+                        .catch(error => {
+                            console.error("Error fetching historical MSA data:", error);
+                        });
+                });
+
+                document.getElementById("popup").style.display = "none";
+                
+            } catch (error) {
+                console.error('Reverse geocoding failed:', error);
+                alert('Could not fetch location name. Please try again.');
+            }
+        } else {
+            alert("Please select or enter valid coordinates.");
+        }
+    }
+
+    function calculateAverageMSA(data) {
+        let values = Object.values(data).filter(val => typeof val === "number");
+        if (values.length === 0) return 0.5;
+        return values.reduce((a, b) => a + b, 0) / values.length;
+    }
+
+    // Close Popup
+    function closePopup() {
+        document.getElementById("popup").style.display = "none";
+    }
+
+    // Add Marker Function
+    function addMarker(lat, lng) {
+        let marker = L.marker([lat, lng]).addTo(map);
+        markers.push(marker);
+        return marker;
+    }
+
+    // Add Circle Function
+    function addCircle(lat, lng, radius, color = "#6c757d") {
+        let circle = L.circle([lat, lng], {
+            radius: radius * 1000, // Convert km to meters
+            color: color,
+            fillOpacity: 0.2
+        }).addTo(map);
+        circles.push(circle);
+        return circle;
+    }
+
+        // Add Marker to Sidebar
+        function addMarkerToSidebar(locationName, lat, lng, msaData, id) {
+        var markersList = document.getElementById("markers-list");
+        var markerEntry = document.createElement("div");
+        markerEntry.className = "marker-entry";
+        markerEntry.id = "marker-" + id;
+
+        // Only show MSA 2020 in the sidebar
+        const msa2020 = msaData.msa_2020 || "No data";
+
+        markerEntry.innerHTML = `
+            <div class="entry-header">
+                <div class="msa-value">MSA 2020: ${typeof msa2020 === 'number' ? msa2020.toFixed(10) : msa2020}</div>
+                <button class="delete-btn" onclick="deleteMarker(${id})"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="coordinates">Location: ${locationName}</div>
+            <div class="coordinates">Lat: ${parseFloat(lat).toFixed(6)}</div>
+            <div class="coordinates">Lng: ${parseFloat(lng).toFixed(6)}</div>
+            <div class="entry-action">
+                 <button class="report-btn" onclick='viewReport(${lat}, ${lng}, ${JSON.stringify(JSON.stringify(msaData))})'>
+                    <i class="fas fa-chart-bar"></i> View Report
+                </button>
+            </div>
+        `;
+
+        markersList.appendChild(markerEntry);
+    }
+
+
+
+        // Delete Marker Function
+        function deleteMarker(id) {
+            var markerElement = document.getElementById("marker-" + id);
+
+            if (markerElement && id < markers.length) {
+                // Remove from map
+                map.removeLayer(markers[id]);
+                map.removeLayer(circles[id]);
+
+                // Remove from DOM
+                markerElement.remove();
+            }
+
+            // If no markers left, show empty state
+            if (document.querySelectorAll(".marker-entry").length === 0) {
+                var emptyState = document.createElement("div");
+                emptyState.className = "empty-state";
+                emptyState.innerHTML = `
+                    <i class="fas fa-map-marker-alt"></i>
+                    <h3>No markers added</h3>
+                    <p>Click the + button to add markers to the map</p>
+                `;
+                document.getElementById("markers-list").appendChild(emptyState);
+            }
+        }
+
+        // View Report Function
+            function viewReport(lat, lng, msaDataString) {
+    showTab('reports');
+    const msaData = JSON.parse(msaDataString);
+
+    // Create loading indicator
+    document.querySelector('#reports-tab .empty-state').innerHTML = `
+        <div class="loading-spinner">
+            <div class="spinner"></div>
+            <h3>Generating Report</h3>
+            <p>Fetching historical MSA data...</p>
+        </div>
+    `;
+
+
+    // If we're missing historical data, fetch it
+    if (!msaData.msa_1995 || !msaData.msa_2010 || !msaData.msa_2015) {
+        // Fetch historical data
+        fetch(`${BASE_URL}/get_historical_msa?lat=${lat}&lng=${lng}`)
+            .then(response => response.json())
+            .then(historicalData => {
+                // Create a new combined data object
+                const completeData = {
+                    ...msaData,
+                    msa_1995: historicalData.msa_1995,
+                    msa_2010: historicalData.msa_2010,
+                    msa_2015: historicalData.msa_2015
+                };
+
+                // Update the report with complete data
+                createReport(lat, lng, completeData);
+            })
+            .catch(error => {
+                console.error("Error fetching historical MSA data:", error);
+                // Still create report with whatever data we have
+                createReport(lat, lng, msaData);
+            });
+    }
+}
+function createReport(lat, lng, msaData) {
+    // Prepare data for the chart
+    const years = [];
+    const values = [];
+
+    // Add data points in chronological order
+    if (msaData.msa_1995 && msaData.msa_1995 !== "No data") {
+        years.push(1995);
+        values.push(parseFloat(msaData.msa_1995));
+    }
+    if (msaData.msa_2010 && msaData.msa_2010 !== "No data") {
+        years.push(2010);
+        values.push(parseFloat(msaData.msa_2010));
+    }
+    if (msaData.msa_2015 && msaData.msa_2015 !== "No data") {
+        years.push(2015);
+        values.push(parseFloat(msaData.msa_2015));
+    }
+    if (msaData.msa_2020 && msaData.msa_2020 !== "No data") {
+        years.push(2020);
+        values.push(parseFloat(msaData.msa_2020));
+    }
+
+    // Create styled report content
+    let reportContent = `
+        <i class="fas fa-chart-line"></i>
+        <h3>MSA Report</h3>
+        <p>Coordinates: ${lat.toFixed(6)}, ${lng.toFixed(6)}</p>
+        <div style="display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 15px;">
+    `;
+
+    // Add all MSA data as styled blocks
+    if (msaData.msa_1995) {
+        reportContent += `
+            <div class="marker-entry" style="flex: 1; min-width: 150px;">
+                <div class="entry-header">
+                    <div class="msa-value">MSA 1995</div>
+                </div>
+                <div style="font-size: 18px; text-align: center; margin-top: 5px;">
+                    ${typeof msaData.msa_1995 === 'number' ? msaData.msa_1995.toFixed(15) : msaData.msa_1995}
+                </div>
+            </div>
+        `;
+    }
+
+    if (msaData.msa_2010) {
+        reportContent += `
+            <div class="marker-entry" style="flex: 1; min-width: 150px;">
+                <div class="entry-header">
+                    <div class="msa-value">MSA 2010</div>
+                </div>
+                <div style="font-size: 18px; text-align: center; margin-top: 5px;">
+                    ${typeof msaData.msa_2010 === 'number' ? msaData.msa_2010.toFixed(15) : msaData.msa_2010}
+                </div>
+            </div>
+        `;
+    }
+
+    if (msaData.msa_2015) {
+        reportContent += `
+            <div class="marker-entry" style="flex: 1; min-width: 150px;">
+                <div class="entry-header">
+                    <div class="msa-value">MSA 2015</div>
+                </div>
+                <div style="font-size: 18px; text-align: center; margin-top: 5px;">
+                    ${typeof msaData.msa_2015 === 'number' ? msaData.msa_2015.toFixed(15) : msaData.msa_2015}
+                </div>
+            </div>
+        `;
+    }
+
+    if (msaData.msa_2020) {
+        reportContent += `
+            <div class="marker-entry" style="flex: 1; min-width: 150px;">
+                <div class="entry-header">
+                    <div class="msa-value">MSA 2020</div>
+                </div>
+                <div style="font-size: 18px; text-align: center; margin-top: 5px;">
+                    ${typeof msaData.msa_2020 === 'number' ? msaData.msa_2020.toFixed(15) : msaData.msa_2020}
+                </div>
+            </div>
+        `;
+    }
+
+    reportContent += `
+        </div>
+    `;
+
+    // Add chart container if we have data
+    if (years.length > 0) {
+        reportContent += `
+            <h4>MSA Trend (1995-2020)</h4>
+            <div id="msa-chart" style="width: 100%; height: 200px;"></div>
+        `;
+    } else {
+        reportContent += `<p>No historical data available to display chart.</p>`;
+    }
+
+    // Update the report container
+    document.querySelector('#reports-tab .empty-state').innerHTML = reportContent;
+
+    // If we have data, create the chart
+    if (years.length > 0) {
+        // We need to wait a moment for the DOM to update
+        setTimeout(() => {
+            const chartData = years.map((year, index) => ({ year: year, msa: values[index] }));
+            createMSAChart(chartData);
+        }, 100);
+    }
+}
+
+
+        function createMSAChart(data) {
+    // Make sure the chart container exists
+    const chartContainer = document.getElementById('msa-chart');
+    if (!chartContainer) return;
+
+    // Clear any existing chart
+    chartContainer.innerHTML = '';
+
+    // Set up SVG dimensions with improved margins for better label spacing
+    const margin = {top: 30, right: 40, bottom: 50, left: 70};
+    const width = chartContainer.clientWidth - margin.left - margin.right;
+    const height = chartContainer.clientHeight - margin.top - margin.bottom;
+
+    // Create SVG element
+    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    svg.setAttribute("width", chartContainer.clientWidth);
+    svg.setAttribute("height", chartContainer.clientHeight);
+    chartContainer.appendChild(svg);
+
+    const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+    g.setAttribute("transform", `translate(${margin.left},${margin.top})`);
+    svg.appendChild(g);
+
+    // Set up scales
+    const years = data.map(d => d.year);
+    const values = data.map(d => d.msa);
+
+    const xMin = Math.min(...years);
+    const xMax = Math.max(...years);
+    const yMin = Math.min(...values);
+    const yMax = Math.max(...values);
+
+    // X scale
+    const xScale = (x) => {
+        return (x - xMin) / (xMax - xMin) * width;
+    };
+
+    // Y scale with padding
+    const yPadding = (yMax - yMin) * 0.1;
+    const yScale = (y) => {
+        return height - ((y - (yMin - yPadding)) / ((yMax + yPadding) - (yMin - yPadding)) * height);
+    };
+
+    // Create grid lines for better readability
+    const gridLines = document.createElementNS("http://www.w3.org/2000/svg", "g");
+    gridLines.setAttribute("class", "grid-lines");
+    g.appendChild(gridLines);
+
+    // Y grid lines
+    const yTicks = 5;
+    for (let i = 0; i <= yTicks; i++) {
+        const yValue = yMin + ((yMax - yMin) / yTicks) * i;
+
+        // Add grid line
+        const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+        line.setAttribute("x1", 0);
+        line.setAttribute("x2", width);
+        line.setAttribute("y1", yScale(yValue));
+        line.setAttribute("y2", yScale(yValue));
+        line.setAttribute("stroke", "rgba(255,255,255,0.1)");
+        line.setAttribute("stroke-dasharray", "3,3");
+        gridLines.appendChild(line);
+    }
+
+    // Create X axis with improved positioning
+    const xAxis = document.createElementNS("http://www.w3.org/2000/svg", "g");
+    xAxis.setAttribute("transform", `translate(0,${height})`);
+    g.appendChild(xAxis);
+
+    // X axis line
+    const xAxisLine = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    xAxisLine.setAttribute("x1", 0);
+    xAxisLine.setAttribute("x2", width);
+    xAxisLine.setAttribute("y1", 0);
+    xAxisLine.setAttribute("y2", 0);
+    xAxisLine.setAttribute("stroke", "#d2d2d2");
+    xAxisLine.setAttribute("stroke-width", "1");
+    xAxis.appendChild(xAxisLine);
+
+    // Add X axis title
+    const xTitle = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    xTitle.setAttribute("x", width / 2);
+    xTitle.setAttribute("y", 40); // Increased distance from axis
+    xTitle.setAttribute("text-anchor", "middle");
+    xTitle.setAttribute("fill", "#d2d2d2");
+    xTitle.textContent = "Year";
+    xAxis.appendChild(xTitle);
+
+    // Add X axis labels with better spacing
+    years.forEach(year => {
+        // Add tick mark
+        const tick = document.createElementNS("http://www.w3.org/2000/svg", "line");
+        tick.setAttribute("x1", xScale(year));
+        tick.setAttribute("x2", xScale(year));
+        tick.setAttribute("y1", 0);
+        tick.setAttribute("y2", 5);
+        tick.setAttribute("stroke", "#d2d2d2");
+        xAxis.appendChild(tick);
+
+        // Add label
+        const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        text.setAttribute("x", xScale(year));
+        text.setAttribute("y", 22); // Better spacing from tick mark
+        text.setAttribute("text-anchor", "middle");
+        text.setAttribute("fill", "#d2d2d2");
+        text.textContent = year;
+        xAxis.appendChild(text);
+    });
+
+    // Create Y axis with improved positioning
+    const yAxis = document.createElementNS("http://www.w3.org/2000/svg", "g");
+    g.appendChild(yAxis);
+
+    // Y axis line
+    const yAxisLine = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    yAxisLine.setAttribute("x1", 0);
+    yAxisLine.setAttribute("x2", 0);
+    yAxisLine.setAttribute("y1", 0);
+    yAxisLine.setAttribute("y2", height);
+    yAxisLine.setAttribute("stroke", "#d2d2d2");
+    yAxisLine.setAttribute("stroke-width", "1");
+    yAxis.appendChild(yAxisLine);
+
+    // Add Y axis title with better positioning
+    const yTitle = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    yTitle.setAttribute("transform", "rotate(-90)");
+    yTitle.setAttribute("x", -height / 2);
+    yTitle.setAttribute("y", -50); // Increased distance from axis
+    yTitle.setAttribute("text-anchor", "middle");
+    yTitle.setAttribute("fill", "#d2d2d2");
+    yTitle.textContent = "";
+    yAxis.appendChild(yTitle);
+
+    // Add Y axis labels with improved formatting
+    for (let i = 0; i <= yTicks; i++) {
+        const yValue = yMin + ((yMax - yMin) / yTicks) * i;
+
+        // Add tick mark
+        const tick = document.createElementNS("http://www.w3.org/2000/svg", "line");
+        tick.setAttribute("x1", -5);
+        tick.setAttribute("x2", 0);
+        tick.setAttribute("y1", yScale(yValue));
+        tick.setAttribute("y2", yScale(yValue));
+        tick.setAttribute("stroke", "#d2d2d2");
+        yAxis.appendChild(tick);
+
+        // Add label with better spacing
+        const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        text.setAttribute("x", -10);
+        text.setAttribute("y", yScale(yValue));
+        text.setAttribute("text-anchor", "end");
+        text.setAttribute("dominant-baseline", "central"); // Better vertical alignment
+        text.setAttribute("fill", "#d2d2d2");
+        text.textContent = yValue.toFixed(3);
+        yAxis.appendChild(text);
+    }
+
+    // Create line for data points
+    let pathD = `M ${xScale(data[0].year)} ${yScale(data[0].msa)}`;
+    for (let i = 1; i < data.length; i++) {
+        pathD += ` L ${xScale(data[i].year)} ${yScale(data[i].msa)}`;
+    }
+
+    const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    path.setAttribute("d", pathD);
+    path.setAttribute("fill", "none");
+    path.setAttribute("stroke", "#0078d4");
+    path.setAttribute("stroke-width", "3");
+    path.setAttribute("stroke-linejoin", "round");
+    path.setAttribute("stroke-linecap", "round");
+    g.appendChild(path);
+
+    // Add dots for each data point
+    data.forEach(d => {
+        const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+        circle.setAttribute("cx", xScale(d.year));
+        circle.setAttribute("cy", yScale(d.msa));
+        circle.setAttribute("r", "5");
+        circle.setAttribute("fill", "#0078d4");
+        circle.setAttribute("stroke", "#ffffff");
+        circle.setAttribute("stroke-width", "2");
+
+        // Enhanced tooltip on hover
+        circle.addEventListener("mouseover", (e) => {
+            // Create tooltip group
+            const tooltip = document.createElementNS("http://www.w3.org/2000/svg", "g");
+            tooltip.setAttribute("id", "tooltip");
+
+            // Create tooltip background with improved size and positioning
+            const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+            rect.setAttribute("x", xScale(d.year) - 50);
+            rect.setAttribute("y", yScale(d.msa) - 40);
+            rect.setAttribute("width", "110");
+            rect.setAttribute("height", "40");
+            rect.setAttribute("fill", "#1e1e1e");
+            rect.setAttribute("stroke", "#0078d4");
+            rect.setAttribute("stroke-width", "1.5");
+            rect.setAttribute("rx", "4");
+            tooltip.appendChild(rect);
+
+            // Create tooltip text with better formatting
+            const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+            text.setAttribute("x", xScale(d.year));
+            text.setAttribute("y", yScale(d.msa) - 20);
+            text.setAttribute("text-anchor", "middle");
+            text.setAttribute("fill", "#ffffff");
+            text.setAttribute("font-weight", "bold");
+            text.textContent = `${d.year}: ${d.msa.toFixed(5)}`;
+            tooltip.appendChild(text);
+
+            g.appendChild(tooltip);
+
+            // Highlight the active point
+            circle.setAttribute("r", "7");
+        });
+
+        circle.addEventListener("mouseout", () => {
+            const tooltip = document.getElementById("tooltip");
+            if (tooltip) tooltip.remove();
+            circle.setAttribute("r", "5"); // Reset radius
+        });
+
+        g.appendChild(circle);
+    });
+}
+
+
+
+        // Get Circle Color Based on Mean MSA Value
+        function getCircleColor(msaValue) {
+    // If we just get a single MSA value (not an object)
+        if (typeof msaValue === 'number') {
+            if (msaValue < 0.3) return "#ff5252";   // Low MSA (red)
+            if (msaValue < 0.6) return "#ffeb3b";   // Medium MSA (yellow)
+            return "#4caf50";                       // High MSA (green)
+        }
+
+        // If we get an object with msa_2020
+        const msa2020 = msaValue.msa_2020;
+        if (typeof msa2020 !== 'number') return "#6c757d"; // Default gray
+
+        if (msa2020 < 0.3) return "#ff5252";   // Low MSA (red)
+        if (msa2020 < 0.6) return "#ffeb3b";   // Medium MSA (yellow)
+        return "#4caf50";                      // High MSA (green)
+    }
+
+
+
+        function showReport(reportUrl) {
+            document.getElementById("lookerReport").src = reportUrl;
+        }
+
+        window.onload = function() {
+            fillInputFields();
+        };
+
+        let messageHistory = [];
+
+document.addEventListener("DOMContentLoaded", function () {
+    document.head.insertAdjacentHTML('beforeend', highlightStyles);
+
+    // Add event listener for the input field
+    const inputField = document.getElementById("user-input");
+    if (inputField) {
+        inputField.addEventListener("keypress", function (event) {
+            if (event.key === "Enter") {
+                event.preventDefault();
+                sendMessage();
+            }
+        });
+    }
+});
+
+const keyTerms = [
+    { canonical: "ESRS E4", variants: ["esrs e4", "esrs-e4", "biodiversity reporting standard"] },
+    { canonical: "MSA", variants: ["mean species abundance", "biodiversity intactness"] },
+    { canonical: "GHG Protocol", variants: ["greenhouse gas protocol", "scope 1 2 3"] },
+    { canonical: "ISO 14064", variants: ["iso14064", "carbon accounting standard"] },
+    { canonical: "TCFD", variants: ["task force climate disclosures"] }
+    // Add other terms from knowledge base here
+];
+
+// Environmental context for the chatbot
+const context = `You are an environmental assistant specializing in CO₂ emissions, sustainability, and environmental impact analysis. You have expertise in environmental reporting standards like ESRS, biodiversity metrics like Mean Species Abundance (MSA), and carbon accounting frameworks. The user is viewing a map of Germany that shows environmental data related to various industries. Help them understand environmental concepts, interpret data, and provide information about sustainability practices.`;
+
+// Knowledge base will be stored here after loading
+let knowledgeBase = [];
+
+// Function to parse the comprehensive knowledge base text file
+async function loadKnowledgeBase() {
+    try {
+        const response = await fetch('/static/knowledge_base.txt');
+        if (!response.ok) {
+            throw new Error(`Failed to load knowledge base: ${response.status}`);
+        }
+
+        const text = await response.text();
+
+        // Process the sections from the knowledge base
+        // Each section is split by a line of at least 10 dashes
+        const sections = text.split(/─{10,}/);
+
+        sections.forEach((section) => {
+            if (section.trim() === '') return;
+
+            // Extract section title and content
+            const lines = section.trim().split('\n');
+            let title = '';
+            let content = '';
+
+            // First non-empty line is likely the title
+            for (let i = 0; i < lines.length; i++) {
+                if (lines[i].trim() !== '') {
+                    title = lines[i].trim();
+                    content = lines.slice(i + 1).join(' ').trim();
+                    break;
+                }
+            }
+
+            // If we found both title and content, add to knowledge base
+            if (title && content) {
+                // Generate an ID from the title
+                const id = title.toLowerCase()
+                    .replace(/[^\w\s]/g, '')
+                    .replace(/\s+/g, '-');
+
+                knowledgeBase.push({
+                    id: id,
+                    title: title,
+                    content: content
+                });
+            }
+        });
+
+        console.log(`Loaded ${knowledgeBase.length} sections into knowledge base`);
+    } catch (error) {
+        console.error('Error loading knowledge base:', error);
+        // Load fallback knowledge base if file load fails
+        loadFallbackKnowledgeBase();
+    }
+}
+
+// Fallback knowledge base in case text file fails to load
+function loadFallbackKnowledgeBase() {
+    console.log('Loading fallback knowledge base');
+    knowledgeBase = [
+        {
+            id: "mean-species-abundance",
+            title: "MEAN SPECIES ABUNDANCE (MSA)",
+            content: "Mean Species Abundance (MSA) measures the intactness of biodiversity by comparing the abundance of native species in a disturbed ecosystem to their abundance in a pristine, undisturbed reference state. An MSA value of 1 (or 100%) indicates complete intactness, while a value approaching 0 signifies severe ecological degradation. MSA is used as a central indicator in conservation biology, ecosystem management, and policy-making."
+        },
+        {
+            id: "co2-emissions-industrial-impact",
+            title: "CO₂ EMISSIONS AND INDUSTRIAL IMPACT",
+            content: "Carbon dioxide (CO₂) is the most significant greenhouse gas (GHG) contributing to climate change, primarily released through fossil fuel combustion, industrial production, and land-use changes. Industrial sectors—including energy generation, cement and steel production, chemical processing, and transportation—are key sources of CO₂ emissions. These emissions not only drive global warming but also contribute to secondary environmental issues such as ocean acidification and air pollution."
+        },
+        {
+            id: "european-sustainability-reporting-standards",
+            title: "EUROPEAN SUSTAINABILITY REPORTING STANDARDS (ESRS) & ESRS E4",
+            content: "The European Sustainability Reporting Standards (ESRS) form part of the Corporate Sustainability Reporting Directive (CSRD) framework. Developed by the European Financial Reporting Advisory Group (EFRAG), the ESRS ensure that companies provide transparent, comprehensive, and comparable sustainability information. The ESRS integrate environmental, social, and governance (ESG) aspects, applying the concept of double materiality—evaluating both the company's impacts on sustainability and how sustainability issues affect the company."
+        },
+        {
+            id: "germany-emissions-overview",
+            title: "GERMANY EMISSIONS OVERVIEW",
+            content: "Germany's total greenhouse gas emissions in 2023 were approximately 673 million tonnes of CO2 equivalent, representing a 10.1% decrease from 2019 levels. The energy sector remains the largest contributor at 32%, followed by industry (23%), transport (20%), buildings (16%), and agriculture (9%)."
+        },
+        {
+            id: "renewable-energy-germany",
+            title: "RENEWABLE ENERGY IN GERMANY",
+            content: "Germany's renewable energy share reached 52% of electricity generation in 2023. Wind power is the dominant renewable source (28.4%), followed by solar (11.2%), biomass (8.1%), and hydropower (4.3%). The country aims to reach 80% renewable electricity by 2030."
+        },
+        {
+            id: "german-industrial-emissions",
+            title: "GERMAN INDUSTRIAL EMISSIONS",
+            content: "The industrial sector in Germany produced approximately 155 million tonnes of CO2 equivalent in 2023. Steel production, chemical manufacturing, and cement production are the most carbon-intensive industries, collectively accounting for over 60% of industrial emissions."
+        }
+    ];
+}
+
+// Toggle Chatbot Popup
+function toggleChatbot() {
+    const chatbot = document.getElementById("chatbot-popup");
+    chatbot.classList.toggle("active");
+}
+
+// Enhanced RAG implementation: Search knowledge base for relevant information
+function retrieveRelevantInformation(query) {
+    // Split query into keywords
+    const queryWords = query.toLowerCase().split(' ');
+    const relevantDocuments = [];
+
+    // Filter out common words
+    const stopWords = ['the', 'a', 'an', 'and', 'in', 'on', 'of', 'is', 'are', 'to', 'for', 'with', 'what', 'how', 'why', 'when', 'where', 'which', 'who', 'can', 'you', 'tell', 'me', 'about'];
+    const filteredWords = queryWords.filter(word => !stopWords.includes(word.toLowerCase()));
+
+    // Weighted scoring system
+    knowledgeBase.forEach(doc => {
+        const docContent = (doc.title + ' ' + doc.content).toLowerCase();
+        let score = 0;
+
+        // Count keyword matches with weighted scoring
+        filteredWords.forEach(word => {
+            if (word.length < 3) return; // Skip very short words
+
+            // Exact match bonus
+            if (docContent.includes(' ' + word + ' ')) {
+                score += 2;
+            }
+            // Partial match
+            else if (docContent.includes(word)) {
+                score += 1;
+            }
+
+            // Title match bonus (more relevant)
+            if (doc.title && doc.title.toLowerCase().includes(word)) {
+                score += 3;
+            }
+
+            // Special terms bonus (domain-specific terminology)
+            const specialTerms = ['msa', 'biodiversity', 'co2', 'emissions', 'carbon', 'esrs', 'sustainability', 'reporting', 'climate'];
+            if (specialTerms.includes(word.toLowerCase())) {
+                score += 2;
+            }
+        });
+
+        // Check for multi-word phrases (2-3 words)
+        for (let i = 0; i < filteredWords.length - 1; i++) {
+            const twoWordPhrase = filteredWords[i] + ' ' + filteredWords[i + 1];
+            if (docContent.includes(twoWordPhrase)) {
+                score += 3; // Bonus for phrase match
+            }
+
+            if (i < filteredWords.length - 2) {
+                const threeWordPhrase = twoWordPhrase + ' ' + filteredWords[i + 2];
+                if (docContent.includes(threeWordPhrase)) {
+                    score += 5; // Higher bonus for longer phrase match
+                }
+            }
+        }
+
+        // Add document to results if it has matches
+        if (score > 0) {
+            relevantDocuments.push({
+                id: doc.id,
+                title: doc.title || '',
+                content: doc.content,
+                score: score
+            });
+        }
+    });
+
+    // Sort by relevance score
+    relevantDocuments.sort((a, b) => b.score - a.score);
+
+    // Return top 3 most relevant documents
+    return relevantDocuments.slice(0, 3);
+}
+
+function preprocessQuery(query) {
+    // Normalize key terms to improve matching
+    let processed = query;
+
+    // Map common variations to canonical forms
+    const termMappings = {
+        "esrs e4": "ESRS E4",
+        "esrs-e4": "ESRS E4",
+        "biodiversity reporting standard": "ESRS E4",
+        "mean species abundance": "MSA",
+        "biodiversity intactness": "MSA",
+        "greenhouse gas protocol": "GHG Protocol",
+        "scope 1 2 3": "GHG Protocol",
+        "iso14064": "ISO 14064",
+        "carbon accounting standard": "ISO 14064",
+        "task force climate disclosures": "TCFD"
+    };
+
+    Object.entries(termMappings).forEach(([variant, canonical]) => {
+        const regex = new RegExp(`\\b${variant}\\b`, 'gi');
+        processed = processed.replace(regex, canonical);
+    });
+
+    return processed;
+}
+
+// Main function to send user message and get streamed response
+async function sendMessage() {
+    const input = document.getElementById("user-input");
+    const message = input.value.trim();
+    if (!message) return;
+
+    // Add user message to UI
+    addMessageToChat("user", message);
+    input.value = "";
+
+    // Create response message container
+    const botResponseId = `bot-response-${Date.now()}`;
+    createBotResponseContainer(botResponseId);
+
+    // Enhanced query preprocessing for better term matching
+    const processedQuery = preprocessQuery(message);
+
+    // Retrieve relevant information for RAG with improved matching
+    const relevantDocs = retrieveRelevantInformation(processedQuery);
+    let augmentedPrompt = context;
+
+    // Add key term definitions for better accuracy
+    const keyTermDefinitions = {
+        "ESRS E4": "ESRS E4 is a European Sustainability Reporting Standard focused specifically on biodiversity and ecosystems reporting requirements for companies.",
+        "MSA": "Mean Species Abundance (MSA) measures biodiversity intactness by comparing species abundance in disturbed versus undisturbed ecosystems."
+    };
+
+    // Check if user is asking about specific key terms
+    Object.keys(keyTermDefinitions).forEach(term => {
+        if (message.toLowerCase().includes(term.toLowerCase())) {
+            augmentedPrompt += `\n\nImportant definition: ${keyTermDefinitions[term]}\n`;
+        }
+    });
+
+    // Add retrieved information to context
+    if (relevantDocs.length > 0) {
+        augmentedPrompt += "\n\nHere is some relevant information that may help with your response:\n";
+        relevantDocs.forEach(doc => {
+            augmentedPrompt += `\n${doc.title ? '## ' + doc.title + '\n' : ''}${doc.content}\n`;
+        });
+    }
+
+    // Update message history with RAG-enhanced context
+    if (messageHistory.length === 0) {
+        // Add system message with context on first interaction
+        messageHistory.push({ role: "system", content: augmentedPrompt });
+    }
+
+    // Add user message
+    messageHistory.push({ role: "user", content: message });
+
+    try {
+        // Use streaming API for real-time responses
+        await streamResponse(messageHistory, botResponseId);
+    } catch (error) {
+        console.error("Error:", error);
+        updateBotResponse(botResponseId, "Unable to connect to Ollama. Make sure it's running locally with the llama3.2 model loaded.");
+    }
+}
+
+// Create initial container for bot response
+function createBotResponseContainer(responseId) {
+    const chat = document.getElementById("chat-messages");
+    const msgDiv = document.createElement("div");
+    msgDiv.className = "message bot-message";
+    msgDiv.id = responseId;
+
+    // Add typing indicator initially
+    msgDiv.innerHTML = '<span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span>';
+
+    chat.appendChild(msgDiv);
+    chat.scrollTop = chat.scrollHeight;
+    return msgDiv;
+}
+
+// Stream response from the LLM
+async function streamResponse(messageHistory, responseId) {
+    try {
+        const response = await fetch("http://localhost:11434/api/chat", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                model: "llama3.2",
+                messages: messageHistory,
+                stream: true,  // Enable streaming
+                temperature: 0.1
+            })
+        });
+
+        if (!response.body) {
+            throw new Error("ReadableStream not supported");
+        }
+
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let accumulatedResponse = "";
+        let formattedText = "";
+
+        // Process the stream
+        while (true) {
+            const { value, done } = await reader.read();
+
+            if (done) {
+                break;
+            }
+
+            // Decode the chunk
+            const chunk = decoder.decode(value, { stream: true });
+
+            try {
+                // Parse JSON data
+                const lines = chunk.split('\n').filter(line => line.trim());
+
+                for (const line of lines) {
+                    const data = JSON.parse(line);
+
+                    if (data.message && data.message.content) {
+                        // Append the new content
+                        accumulatedResponse += data.message.content;
+
+                        // Format and update the displayed text
+                        formattedText = formatBotReply(accumulatedResponse);
+                        updateBotResponse(responseId, formattedText);
+                    }
+                }
+            } catch (e) {
+                console.error("Error parsing stream chunk:", e);
+            }
+        }
+
+        // Finalize the message formatting
+        formattedText = formatBotReply(accumulatedResponse);
+        updateBotResponse(responseId, formattedText);
+
+        // Add to message history
+        messageHistory.push({ role: "assistant", content: accumulatedResponse });
+
+    } catch (error) {
+        console.error("Stream error:", error);
+        updateBotResponse(responseId, "Error: Could not stream response. Please try again.");
+    }
+}
+
+// Update bot response in the DOM
+function updateBotResponse(responseId, content) {
+    const responseElement = document.getElementById(responseId);
+    if (responseElement) {
+        responseElement.innerHTML = content;
+
+        // Apply structured message styling if needed
+        if (content.includes('<h1>') || content.includes('<h2>') || content.includes('<h3>') ||
+            content.includes('<ul>') || content.includes('<ol>')) {
+            responseElement.className = "message bot-message-structured";
+        }
+
+        // Auto scroll to latest content
+        const chat = document.getElementById("chat-messages");
+        chat.scrollTop = chat.scrollHeight;
+    }
+}
+
+function formatBotReply(text) {
+    // Create a safe div to handle HTML content
+    const tempDiv = document.createElement('div');
+
+    // Convert markdown to HTML
+    let formattedText = text;
+
+    // Handle headers
+    formattedText = formattedText.replace(/^### (.*$)/gm, '<h3>$1</h3>');
+    formattedText = formattedText.replace(/^## (.*$)/gm, '<h2>$1</h2>');
+    formattedText = formattedText.replace(/^# (.*$)/gm, '<h1>$1</h1>');
+
+    // Handle emphasis
+    formattedText = formattedText.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+    formattedText = formattedText.replace(/\*(.*?)\*/g, '<em>$1</em>');
+
+    // Handle lists properly
+    let listMode = false;
+    const lines = formattedText.split('\n');
+    const processedLines = [];
+
+    for (let i = 0; i < lines.length; i++) {
+        const line = lines[i];
+
+        // List item detection
+        if (line.match(/^\s*[\*\-]\s/)) {
+            if (!listMode) {
+                processedLines.push('<ul>');
+                listMode = 'ul';
+            }
+            processedLines.push(`<li>${line.replace(/^\s*[\*\-]\s/, '')}</li>`);
+        }
+        // Numbered list detection
+        else if (line.match(/^\s*\d+\.\s/)) {
+            if (!listMode) {
+                processedLines.push('<ol>');
+                listMode = 'ol';
+            }
+            processedLines.push(`<li>${line.replace(/^\s*\d+\.\s/, '')}</li>`);
+        }
+        // End list if we were in list mode
+        else {
+            if (listMode) {
+                processedLines.push(listMode === 'ol' ? '</ol>' : '</ul>');
+                listMode = false;
+            }
+            processedLines.push(line);
+        }
+    }
+
+    // Close any open list
+    if (listMode) {
+        processedLines.push(listMode === 'ol' ? '</ol>' : '</ul>');
+    }
+
+    formattedText = processedLines.join('\n');
+
+    // Handle code blocks
+    formattedText = formattedText.replace(/```([^`]+)```/g, '<pre><code>$1</code></pre>');
+    formattedText = formattedText.replace(/`([^`]+)`/g, '<code>$1</code>');
+
+    // Handle line breaks
+    formattedText = formattedText.replace(/\n/g, '<br>');
+
+    // Improve highlighting for key environmental terms
+    const keyTerms = [
+        { term: "ESRS E4", className: "highlight-term" },
+        { term: "ESRS", className: "highlight-term" },
+        { term: "MSA", className: "highlight-term" },
+        { term: "Mean Species Abundance", className: "highlight-term" },
+        { term: "biodiversity", className: "highlight-term" },
+        { term: "CO₂", className: "highlight-term" },
+        { term: "carbon", className: "highlight-term" },
+        { term: "emissions", className: "highlight-term" },
+        { term: "sustainability", className: "highlight-term" },
+        { term: "GHG Protocol", className: "highlight-term" },
+        { term: "greenhouse gas", className: "highlight-term" },
+        { term: "TCFD", className: "highlight-term" },
+        { term: "ISO 14064", className: "highlight-term" }
+    ];
+
+    // Apply highlighting with proper HTML rendering
+    tempDiv.innerHTML = formattedText;
+
+    keyTerms.forEach(({ term, className }) => {
+        // Case insensitive global match
+        const regex = new RegExp(`\\b${term}\\b`, 'gi');
+        formattedText = formattedText.replace(regex, `<span class="${className}">$&</span>`);
+    });
+
+    // Return safely formatted HTML
+    return formattedText;
+}
+
+function addMessageToChat(sender, text) {
+    const chat = document.getElementById("chat-messages");
+    const msgDiv = document.createElement("div");
+
+    if (sender === "user") {
+        msgDiv.className = "message user-message";
+        msgDiv.textContent = text; // User messages are plain text
+    } else {
+        // Bot messages can have HTML
+        msgDiv.className = "message bot-message";
+
+        // For structured responses, use specialized styling
+        if (text.includes('<h1>') || text.includes('<h2>') || text.includes('<h3>') ||
+            text.includes('<ul>') || text.includes('<ol>')) {
+            msgDiv.className = "message bot-message-structured";
+        }
+
+        // Set HTML content directly for bot responses
+        msgDiv.innerHTML = text;
+    }
+
+    chat.appendChild(msgDiv);
+    chat.scrollTop = chat.scrollHeight;
+}
+
+// Add a function to clear chat history
+function clearChat() {
+    const chat = document.getElementById("chat-messages");
+    chat.innerHTML = "";
+    messageHistory = [];
+
+    // Add welcome message
+    const welcomeMessage = "Hello! I'm your environmental assistant specializing in sustainability reporting, CO₂ emissions, and biodiversity metrics like MSA. I can help you understand environmental data related to Germany or explain concepts like ESRS E4 and carbon accounting frameworks. What would you like to know?";
+    addMessageToChat("bot", welcomeMessage);
+}
+
+// CSS for typing indicator dots
+const typingIndicatorStyles = `
+<style>
+.typing-dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: #888;
+    margin: 0 3px;
+    opacity: 0.6;
+    animation: typingAnimation 1.4s infinite ease-in-out;
+}
+
+.typing-dot:nth-child(1) {
+    animation-delay: 0s;
+}
+
+.typing-dot:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.typing-dot:nth-child(3) {
+    animation-delay: 0.4s;
+}
+
+@keyframes typingAnimation {
+    0%, 100% {
+        transform: translateY(0);
+        opacity: 0.6;
+    }
+    50% {
+        transform: translateY(-5px);
+        opacity: 1;
+    }
+}
+</style>
+`;
+
+// Initialize chatbot welcome message and load knowledge base on load
+window.onload = async function () {
+    // Add typing indicator styles
+    document.head.insertAdjacentHTML('beforeend', typingIndicatorStyles);
+
+    // Load knowledge base before initializing chat
+    await loadKnowledgeBase();
+
+    // Initialize welcome message
+    clearChat();
+};
+    </script>
+    
+    <!-- CO2 Emissions Report Section -->
+    <div class="content-container">
+        <!-- CO2 Emissions Report Section -->
+        <div class="section">
+            <h1 class="section-title">CO₂ Emissions and Environmental Impact Report</h1>
+            <p>
+                Carbon dioxide (CO₂) emissions have become a critical global concern, significantly contributing to
+                climate change, global warming, and environmental degradation. These emissions lead to rising sea
+                levels, extreme weather patterns, and disruption of ecosystems worldwide. This interactive dashboard
+                provides insights into CO₂ emissions across various industrial sectors.
+            </p>
+            <p>
+                The <strong>metal manufacturing industry</strong> is one of the largest contributors to industrial
+                carbon emissions, particularly through steel and aluminum production processes.
+                <strong>Construction</strong> activities generate substantial emissions through cement production,
+                transportation of materials, and energy consumption at construction sites. The <strong>chemical
+                    industry</strong> produces emissions through processing raw materials and manufacturing various
+                chemical products. <strong>Consumer goods</strong> manufacturing involves emissions throughout the
+                supply chain, from raw material extraction to production and distribution.
+            </p>
+            <p>
+                Select an industry below to explore detailed emissions data and environmental impact assessments.
+            </p>
+
+            <!-- Industry Selection Buttons -->
+            <div class="button-container">
+                <button
+                    onclick="showReport('https://lookerstudio.google.com/embed/reporting/8ed5ddc4-fa25-4083-897d-2957ea71c3cf/page/IAXBF')">Metal
+                    Manufacturing</button>
+                <button
+                    onclick="showReport('https://lookerstudio.google.com/embed/reporting/0548c8e7-af70-4e46-ba06-d1b07b5b421e/page/IAXBF')">Construction</button>
+                <button
+                    onclick="showReport('https://lookerstudio.google.com/embed/reporting/09e31f77-4d8d-46fb-8904-c1b1ab946026/page/IAXBF')">Chemical</button>
+                <button
+                    onclick="showReport('https://lookerstudio.google.com/embed/reporting/4e617e62-1918-423a-a4b9-bc9a910c9ea4/page/IAXBF')">Consumer
+                    Goods</button>
+            </div>
+
+            <!-- Looker Report Frame -->
+            <div class="report-container">
+                <iframe id="lookerReport"
+                    src="https://lookerstudio.google.com/embed/reporting/8ed5ddc4-fa25-4083-897d-2957ea71c3cf/page/IAXBF"></iframe>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chatbot Button -->
+    <div class="chatbot-button" onclick="toggleChatbot()">
+        <i class="fas fa-comment"></i>
+    </div>
+
+    <!-- Chatbot Popup -->
+    <div class="chatbot-popup" id="chatbot-popup">
+        <div class="chatbot-header">
+            <div>🤖 Environmental Data Assistant</div>
+            <i class="fas fa-times" onclick="toggleChatbot()"></i>
+        </div>
+        <div class="chatbot-messages" id="chat-messages">
+            <div class="message bot-message">
+                Hello! I'm your Environmental Data Assistant. I can help you understand CO₂ emissions data and answer
+                questions about environmental impact. How can I assist you today?
+            </div>
+        </div>
+        <div class="chatbot-input">
+            <input type="text" id="user-input" placeholder="Type your message..."
+                onkeypress="if(event.key === 'Enter') sendMessage()">
+            <button onclick="sendMessage()">
+                <i class="fas fa-paper-plane"></i>
+            </button>
+        </div>
+    </div>
+    <div class="footer">
+        <p>© 2025 EcoMap Germany - Environmental Monitoring Platform</p>
+    </div>
+
+</body>
+
+</html>

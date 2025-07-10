@@ -49,3 +49,16 @@ It integrates:
 - 🌍 [Copernicus EU](https://land.copernicus.eu) – Land Cover & Spatial layers
 - ☁️ [Climate TRACE](https://climatetrace.org) – Industrial Emissions
 
+## Images
+### Coordinate based Analysis
+<img width="1894" height="1041" alt="Screenshot 2025-05-12 131511" src="https://github.com/user-attachments/assets/a99346fa-811c-4bd9-9a6c-ac1f29fb8b66" />
+
+### BI Reports
+<img width="1688" height="966" alt="Screenshot 2025-04-11 101123" src="https://github.com/user-attachments/assets/96c7513c-d8e5-4b45-a92a-2e372f0312c9" />
+<img width="1196" height="897" alt="Screenshot 2025-04-13 131618" src="https://github.com/user-attachments/assets/b689e1d8-1c91-4591-9cfa-3ecd63aaa3de" />
+
+
+
+### Chatbot
+<img width="771" height="942" alt="Screenshot 2025-04-08 232959" src="https://github.com/user-attachments/assets/616b897d-dab0-4a4f-a58d-4a950e719ea0" />
+
